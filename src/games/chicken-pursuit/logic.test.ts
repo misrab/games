@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isMazeFullyConnected, mapScreenToWorld, newRace, nextLevel, screenDelta, step, tick } from './logic';
+import { isMazeFullyConnected, mapScreenToWorld, newRace, screenDelta, step, tick } from './logic';
 
 describe('mapScreenToWorld', () => {
   it('rotates up with the board', () => {
@@ -13,14 +13,18 @@ describe('mapScreenToWorld', () => {
 
 describe('maze', () => {
   it('has walls and one connected path', () => {
-    const state = newRace(42, 1);
+    const state = newRace(42, 'normal');
     expect(isMazeFullyConnected(state.passable)).toBe(true);
+  });
+
+  it('grows with difficulty', () => {
+    expect(newRace(3, 'easy').passable.length).toBeLessThan(newRace(3, 'hard').passable.length);
   });
 });
 
 describe('race', () => {
-  it('ends when you reach the fish', () => {
-    let state = newRace(1, 1);
+  it('ends when you reach the food', () => {
+    let state = newRace(1, 'easy');
     state = {
       ...state,
       passable: [
@@ -28,7 +32,7 @@ describe('race', () => {
         [true, true],
       ],
       player: { r: 0, c: 0 },
-      fish: { r: 0, c: 1 },
+      food: { r: 0, c: 1 },
       rotation: 0,
     };
     state = step(state, 'right');
@@ -37,7 +41,7 @@ describe('race', () => {
   });
 
   it('lets the rival win', () => {
-    let state = newRace(1, 1);
+    let state = newRace(1, 'easy');
     state = {
       ...state,
       aiSpeedMs: 10,
@@ -48,14 +52,9 @@ describe('race', () => {
       ],
       player: { r: 0, c: 0 },
       rival: { r: 0, c: 1 },
-      fish: { r: 1, c: 1 },
+      food: { r: 1, c: 1 },
     };
     state = tick(state, 20);
     expect(state.winner).toBe('rival');
-  });
-
-  it('raises level after a win', () => {
-    expect(nextLevel(2, true)).toBe(3);
-    expect(nextLevel(1, false)).toBe(1);
   });
 });

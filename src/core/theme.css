@@ -1,5 +1,6 @@
-:root {
-  color-scheme: light dark;
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
   --bg: #0f1419;
   --fg: #e7ecf1;
   --muted: #8b98a5;
@@ -16,16 +17,16 @@
   font-family: system-ui, -apple-system, sans-serif;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #f4f7fb;
-    --fg: #0f1419;
-    --muted: #536471;
-    --surface: #ffffff;
-    --border: #cfd9e3;
-    --wall: #8ea4b8;
-    --floor: #f7fbff;
-  }
+[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f4f7fb;
+  --fg: #0f1419;
+  --muted: #536471;
+  --accent: #1d9bf0;
+  --surface: #ffffff;
+  --border: #cfd9e3;
+  --wall: #8ea4b8;
+  --floor: #f7fbff;
 }
 
 * {
@@ -38,6 +39,7 @@ body,
   margin: 0;
   min-height: 100%;
   min-height: 100dvh;
+  overflow-x: hidden;
   background: var(--bg);
   color: var(--fg);
 }
@@ -49,4 +51,5 @@ a {
 button {
   font: inherit;
   cursor: pointer;
+  touch-action: manipulation;
 }

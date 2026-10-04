@@ -1,13 +1,21 @@
 .hub {
   max-width: 32rem;
   margin: 0 auto;
-  padding: max(1.25rem, env(safe-area-inset-top)) 1rem max(2rem, env(safe-area-inset-bottom));
+  padding:
+    max(1.25rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right))
+    max(2rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
 }
 
 .hub h1 {
-  margin: 0 0 1rem;
+  margin: 0 0 0.75rem;
   font-size: 1.5rem;
   font-weight: 650;
+}
+
+.hub .shell__panel {
+  margin-bottom: 1rem;
 }
 
 .hub__list {
@@ -27,7 +35,7 @@
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--fg);
-  border-radius: 1rem;
+  border-radius: 0;
   padding: 0.9rem 1rem;
   min-height: 4.5rem;
 }
@@ -36,11 +44,13 @@
   width: 2.75rem;
   height: 2.75rem;
   flex: none;
-  border-radius: 0.8rem;
-  background:
-    radial-gradient(circle at 30% 30%, var(--player) 0 18%, transparent 19%),
-    radial-gradient(circle at 72% 34%, var(--rival) 0 16%, transparent 17%),
-    linear-gradient(160deg, var(--floor), var(--wall));
+  display: block;
+}
+
+.hub__mark svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .hub__name {

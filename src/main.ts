@@ -1,10 +1,13 @@
 import './core/theme.css';
-import { registerMessages } from './core/i18n';
+import { registerMessages, t } from './core/i18n';
+import { applyTheme } from './core/storage';
+import { mountShell } from './core/shell';
 import { mountHub } from './hub/hub';
 import { findGameMeta } from './registry';
 import en from './i18n/en.json';
 
 registerMessages(en);
+applyTheme();
 
 const appEl = document.getElementById('app');
 if (!appEl) throw new Error('Missing #app');
@@ -21,6 +24,7 @@ async function route(): Promise<void> {
   const path = hash.startsWith('/') ? hash : `/${hash}`;
 
   if (path === '/' || path === '') {
+    document.title = t('hub.title');
     activeUnmount = mountHub(app);
     return;
   }
@@ -28,13 +32,13 @@ async function route(): Promise<void> {
   const id = path.replace(/^\//, '');
   const meta = findGameMeta(id);
   if (!meta) {
-    app.textContent = 'Game not found';
+    app.textContent = t('shell.missing');
     return;
   }
 
+  document.title = t(meta.titleKey);
   const mod = await meta.load();
-  mod.default.mount(app, { gameId: id });
-  activeUnmount = () => mod.default.unmount();
+  activeUnmount = mountShell(app, meta, mod.default);
 }
 
 window.addEventListener('hashchange', () => {

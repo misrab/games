@@ -1,19 +1,21 @@
 import { mulberry32, randomInt, type Rng } from '../../core/rng';
 import type { InputAction } from '../../core/input';
 
+export type DifficultyId = 'easy' | 'normal' | 'hard';
+
 export interface Vec {
   r: number;
   c: number;
 }
 
 export interface State {
-  level: number;
+  difficulty: DifficultyId;
   wins: number;
   phase: 'play' | 'done';
   passable: boolean[][];
   player: Vec;
   rival: Vec;
-  fish: Vec;
+  food: Vec;
   rotation: 0 | 1 | 2 | 3;
   msRotate: number;
   msRival: number;
@@ -28,6 +30,17 @@ const DIRS: Vec[] = [
   { r: 0, c: -1 },
   { r: 0, c: 1 },
 ];
+
+const PACE: Record<DifficultyId, { cells: number; rotateEveryMs: number; aiSpeedMs: number; waitMs: number }> = {
+  easy: { cells: 3, rotateEveryMs: 9000, aiSpeedMs: 1500, waitMs: 2800 },
+  normal: { cells: 4, rotateEveryMs: 6400, aiSpeedMs: 1000, waitMs: 2000 },
+  hard: { cells: 5, rotateEveryMs: 4200, aiSpeedMs: 680, waitMs: 1000 },
+};
+
+export function asDifficulty(id: string): DifficultyId {
+  if (id === 'easy' || id === 'hard') return id;
+  return 'normal';
+}
 
 function inBounds(size: number, v: Vec): boolean {
   return v.r >= 0 && v.c >= 0 && v.r < size && v.c < size;
@@ -131,19 +144,6 @@ function bfsNext(passable: boolean[][], from: Vec, to: Vec): Vec | null {
   return null;
 }
 
-function pace(level: number): { cells: number; rotateEveryMs: number; aiSpeedMs: number } {
-  const lv = Math.max(1, level);
-  return {
-    cells: Math.min(3 + lv, 8),
-    rotateEveryMs: Math.max(3200, 8000 - lv * 600),
-    aiSpeedMs: Math.max(520, 1400 - lv * 80),
-  };
-}
-
-export function nextLevel(level: number, won: boolean): number {
-  return won ? level + 1 : Math.max(1, level - 1);
-}
-
 function pathLength(passable: boolean[][], from: Vec, to: Vec): number {
   if (from.r === to.r && from.c === to.c) return 0;
   const size = passable.length;
@@ -164,37 +164,37 @@ function pathLength(passable: boolean[][], from: Vec, to: Vec): number {
   return Infinity;
 }
 
-export function newRace(seed: number, level: number, wins = 0): State {
-  const { cells, rotateEveryMs, aiSpeedMs } = pace(level);
-  const minPath = cells * 2;
-  let passable = generateMaze(cells, mulberry32(seed));
-  let player = { r: 0, c: 0 };
-  let fish = { r: passable.length - 1, c: passable.length - 1 };
-  for (let n = 1; pathLength(passable, player, fish) < minPath && n < 12; n++) {
-    passable = generateMaze(cells, mulberry32(seed + n * 997));
-    fish = { r: passable.length - 1, c: passable.length - 1 };
+export function newRace(seed: number, difficulty: DifficultyId, wins = 0): State {
+  const pace = PACE[difficulty];
+  const minPath = pace.cells * 2;
+  let passable = generateMaze(pace.cells, mulberry32(seed));
+  const player = { r: 0, c: 0 };
+  let food = { r: passable.length - 1, c: passable.length - 1 };
+  for (let n = 1; pathLength(passable, player, food) < minPath && n < 12; n++) {
+    passable = generateMaze(pace.cells, mulberry32(seed + n * 997));
+    food = { r: passable.length - 1, c: passable.length - 1 };
   }
-  const you = pathLength(passable, player, fish);
+  const you = pathLength(passable, player, food);
   const last = passable.length - 1;
   const starts = [
     { r: 0, c: last },
     { r: last, c: 0 },
-  ].sort((a, b) => pathLength(passable, b, fish) - pathLength(passable, a, fish));
-  const rival = starts.find((s) => pathLength(passable, s, fish) >= you) ?? starts[0];
+  ].sort((a, b) => pathLength(passable, b, food) - pathLength(passable, a, food));
+  const rival = starts.find((s) => pathLength(passable, s, food) >= you) ?? starts[0];
   return {
-    level,
+    difficulty,
     wins,
     phase: 'play',
     passable,
     player,
     rival,
-    fish,
+    food,
     rotation: 0,
     msRotate: 0,
-    msRival: -2500,
+    msRival: -pace.waitMs,
     winner: null,
-    rotateEveryMs,
-    aiSpeedMs,
+    rotateEveryMs: pace.rotateEveryMs,
+    aiSpeedMs: pace.aiSpeedMs,
   };
 }
 
@@ -204,12 +204,12 @@ function move(state: State, who: 'player' | 'rival', delta: Vec): State {
   const size = state.passable.length;
   if (!inBounds(size, next) || !state.passable[next.r][next.c]) return state;
   const updated = who === 'player' ? { ...state, player: next } : { ...state, rival: next };
-  if (next.r !== state.fish.r || next.c !== state.fish.c) return updated;
+  if (next.r !== state.food.r || next.c !== state.food.c) return updated;
   return {
     ...updated,
     phase: 'done',
     winner: who === 'player' ? 'you' : 'rival',
-    wins: who === 'player' ? state.wins + 1 : state.wins,
+    wins: who === 'player' ? state.wins + 1 : 0,
   };
 }
 
@@ -228,7 +228,7 @@ export function tick(state: State, dtMs: number): State {
     };
   }
   if (next.msRival >= next.aiSpeedMs) {
-    const stepTo = bfsNext(next.passable, next.rival, next.fish);
+    const stepTo = bfsNext(next.passable, next.rival, next.food);
     if (stepTo) {
       next = move(next, 'rival', { r: stepTo.r - next.rival.r, c: stepTo.c - next.rival.c });
     }

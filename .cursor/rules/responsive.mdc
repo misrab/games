@@ -1,0 +1,14 @@
+---
+description: Every game must work on desktop and on mobile
+alwaysApply: true
+---
+
+# Desktop and mobile
+
+Every game, the hub, and the shell must be playable on a phone and on a desktop. This is the default for new work, not a follow-up.
+
+- Size the playfield from its container (`ResizeObserver` or container queries). Do not lock a canvas to a fixed pixel size.
+- Desktop input is the keyboard. Mobile input is touch on the playfield, plus on-screen controls when a tap or swipe is not enough.
+- Hit targets are at least 44px. The playfield sets `touch-action: none` so the browser does not scroll or zoom instead of playing.
+- Fit a 320px-wide phone and a short landscape phone. Use `dvh` and safe-area insets. Wrap text, and move controls beside the board when height is tight. No horizontal scroll.
+- Before finishing a game, check a phone viewport and a desktop viewport, including the hub.
