@@ -6,15 +6,45 @@ export interface LoopHandlers {
 const FIXED_STEP = 1 / 60;
 const MAX_STEPS = 5;
 
+const holds = new Set<string>();
+const kickers = new Set<() => void>();
+
+export function isSimulationPaused(): boolean {
+  return holds.size > 0;
+}
+
+function kick(): void {
+  for (const fn of kickers) fn();
+}
+
+export function setPauseHold(id: string, on: boolean): void {
+  const before = holds.size > 0;
+  if (on) holds.add(id);
+  else holds.delete(id);
+  if (before && holds.size === 0) kick();
+}
+
+export function clearPauseHolds(): void {
+  const before = holds.size > 0;
+  holds.clear();
+  if (before) kick();
+}
+
 export function createLoop(handlers: LoopHandlers): { start(): void; stop(): void } {
   let rafId = 0;
   let last = 0;
   let acc = 0;
-  let running = false;
+  let started = false;
 
   const frame = (now: number) => {
-    if (!running) return;
+    if (!started) return;
     rafId = requestAnimationFrame(frame);
+    if (isSimulationPaused()) {
+      last = 0;
+      acc = 0;
+      handlers.render(0);
+      return;
+    }
     if (last === 0) {
       last = now;
       return;
@@ -35,16 +65,24 @@ export function createLoop(handlers: LoopHandlers): { start(): void; stop(): voi
     handlers.render(alpha);
   };
 
+  const ensure = () => {
+    if (!started) return;
+    cancelAnimationFrame(rafId);
+    last = 0;
+    acc = 0;
+    rafId = requestAnimationFrame(frame);
+  };
+
   return {
     start() {
-      if (running) return;
-      running = true;
-      last = 0;
-      acc = 0;
-      rafId = requestAnimationFrame(frame);
+      if (started) return;
+      started = true;
+      kickers.add(ensure);
+      ensure();
     },
     stop() {
-      running = false;
+      started = false;
+      kickers.delete(ensure);
       cancelAnimationFrame(rafId);
     },
   };

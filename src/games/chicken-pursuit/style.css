@@ -61,34 +61,6 @@
   white-space: nowrap;
 }
 
-.ch__turn {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  color: var(--muted);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-}
-
-.ch__turn i {
-  display: block;
-  height: 0.45rem;
-  border-radius: 0;
-  background: var(--border);
-  overflow: hidden;
-}
-
-.ch__turn b {
-  display: block;
-  height: 100%;
-  width: 0%;
-  background: var(--accent);
-}
-
-.ch__turn b.is-soon {
-  background: var(--comb);
-}
-
 .ch__main {
   flex: 1;
   min-height: 0;
@@ -124,7 +96,7 @@
 }
 
 .ch__pad {
-  display: grid;
+  display: none;
   grid-template-columns: repeat(3, min(18vw, 4.25rem));
   grid-template-areas:
     '. up .'
@@ -157,6 +129,12 @@
 .ch__pad button:active {
   background: var(--accent);
   color: #fff;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .ch__pad {
+    display: grid;
+  }
 }
 
 @media (max-height: 520px) {

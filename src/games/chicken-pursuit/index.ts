@@ -3,7 +3,7 @@ import { bindInput, type InputAction } from '../../core/input';
 import { t } from '../../core/i18n';
 import { createLoop } from '../../core/loop';
 import { saveRun } from '../../core/storage';
-import { asDifficulty, newRace, step, tick, type State, type Vec } from './logic';
+import { asDifficulty, newRace, step, stepScreen, tick, type State, type Vec } from './logic';
 import { createRenderer, readThemeColors } from './render';
 import './style.css';
 
@@ -29,7 +29,7 @@ function faceBetween(from: Vec, to: Vec, prev: Vec): Vec {
 
 const game: Game = {
   mount(el, opts) {
-    const difficulty = asDifficulty(opts.settings.pace ?? 'normal');
+    const difficulty = asDifficulty(opts.settings.level ?? '3');
     let state: State = newRace(Date.now() & 0xffff, difficulty);
     let shown = state.rotation;
     let you = { ...state.player };
@@ -48,10 +48,6 @@ const game: Game = {
             <span class="ch__key ch__key--food">${t('chicken.food')}</span>
           </p>
           <span class="ch__streak" data-streak>${t('chicken.streak', { n: state.wins })}</span>
-        </div>
-        <div class="ch__turn" aria-hidden="true">
-          <span>${t('chicken.turn')}</span>
-          <i><b data-spin></b></i>
         </div>
         <div class="ch__main">
           <div class="ch__stage">
@@ -73,7 +69,6 @@ const game: Game = {
     const root = el.querySelector('.ch') as HTMLElement;
     const canvas = el.querySelector('[data-canvas]') as HTMLCanvasElement;
     const banner = el.querySelector('[data-banner]') as HTMLElement;
-    const spinEl = el.querySelector('[data-spin]') as HTMLElement;
     const streakEl = el.querySelector('[data-streak]') as HTMLElement;
     const renderer = createRenderer(canvas, readThemeColors(root));
 
@@ -160,11 +155,13 @@ const game: Game = {
       const vertical: InputAction = my > 0 ? 'down' : 'up';
       const order = Math.abs(mx) > Math.abs(my) ? [horizontal, vertical] : [vertical, horizontal];
       for (const action of order) {
-        const next = step(state, action);
-        if (next !== state) {
-          onAction(action);
-          return;
-        }
+        const next = stepScreen(state, action, shown);
+        if (next === state) continue;
+        const before = state.player;
+        state = next;
+        youFace = faceBetween(before, state.player, youFace);
+        paintBanner();
+        return;
       }
     });
 
@@ -186,9 +183,6 @@ const game: Game = {
         if (Math.abs(shortestTurn(shown, goal)) < 0.02) shown = goal;
         you = chase(you, state.player, dt);
         them = chase(them, state.rival, dt);
-        const spin = state.rotateEveryMs ? Math.max(0, state.msRotate) / state.rotateEveryMs : 0;
-        spinEl.style.width = `${Math.min(100, spin * 100)}%`;
-        spinEl.classList.toggle('is-soon', spin > 0.75);
         if (state.phase === 'done' && !announced) {
           announced = true;
           paintBanner();

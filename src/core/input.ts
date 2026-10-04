@@ -29,6 +29,10 @@ export function bindInput(binding: InputBinding): () => void {
 
   const onTouchStart = (e: TouchEvent) => {
     const t = e.changedTouches[0];
+    if (t.target instanceof Element && t.target.closest('button, a, input, summary')) {
+      touchStart = null;
+      return;
+    }
     touchStart = { x: t.clientX, y: t.clientY };
   };
 

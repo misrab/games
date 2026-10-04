@@ -1,7 +1,7 @@
 import { mulberry32, randomInt, type Rng } from '../../core/rng';
 import type { InputAction } from '../../core/input';
 
-export type DifficultyId = 'easy' | 'normal' | 'hard';
+export type DifficultyId = '1' | '2' | '3' | '4' | '5';
 
 export interface Vec {
   r: number;
@@ -31,15 +31,20 @@ const DIRS: Vec[] = [
   { r: 0, c: 1 },
 ];
 
-const PACE: Record<DifficultyId, { cells: number; rotateEveryMs: number; aiSpeedMs: number; waitMs: number }> = {
-  easy: { cells: 3, rotateEveryMs: 9000, aiSpeedMs: 1500, waitMs: 2800 },
-  normal: { cells: 4, rotateEveryMs: 6400, aiSpeedMs: 1000, waitMs: 2000 },
-  hard: { cells: 5, rotateEveryMs: 4200, aiSpeedMs: 680, waitMs: 1000 },
+const LEVEL: Record<
+  DifficultyId,
+  { cells: number; rotateEveryMs: number; aiSpeedMs: number; waitMs: number }
+> = {
+  '1': { cells: 3, rotateEveryMs: 3200, aiSpeedMs: 1600, waitMs: 1600 },
+  '2': { cells: 4, rotateEveryMs: 2600, aiSpeedMs: 1200, waitMs: 1200 },
+  '3': { cells: 5, rotateEveryMs: 2000, aiSpeedMs: 900, waitMs: 900 },
+  '4': { cells: 6, rotateEveryMs: 1800, aiSpeedMs: 650, waitMs: 500 },
+  '5': { cells: 7, rotateEveryMs: 1500, aiSpeedMs: 450, waitMs: 250 },
 };
 
 export function asDifficulty(id: string): DifficultyId {
-  if (id === 'easy' || id === 'hard') return id;
-  return 'normal';
+  if (id === '1' || id === '2' || id === '3' || id === '4' || id === '5') return id;
+  return '3';
 }
 
 function inBounds(size: number, v: Vec): boolean {
@@ -54,15 +59,14 @@ export function screenDelta(action: InputAction): Vec | null {
   return null;
 }
 
-export function mapScreenToWorld(delta: Vec, rotation: 0 | 1 | 2 | 3): Vec {
-  let { r, c } = delta;
-  for (let i = 0; i < rotation; i++) {
-    const nr = -c;
-    const nc = r;
-    r = nr;
-    c = nc;
-  }
-  return { r: r || 0, c: c || 0 };
+export function mapScreenToWorld(delta: Vec, turns: number): Vec {
+  const theta = turns * (Math.PI / 2);
+  const cos = Math.cos(theta);
+  const sin = Math.sin(theta);
+  const c = delta.c * cos + delta.r * sin;
+  const r = -delta.c * sin + delta.r * cos;
+  if (Math.abs(r) >= Math.abs(c)) return { r: Math.sign(r) || 0, c: 0 };
+  return { r: 0, c: Math.sign(c) || 0 };
 }
 
 function generateMaze(cells: number, rng: Rng): boolean[][] {
@@ -165,13 +169,13 @@ function pathLength(passable: boolean[][], from: Vec, to: Vec): number {
 }
 
 export function newRace(seed: number, difficulty: DifficultyId, wins = 0): State {
-  const pace = PACE[difficulty];
-  const minPath = pace.cells * 2;
-  let passable = generateMaze(pace.cells, mulberry32(seed));
+  const level = LEVEL[difficulty];
+  const minPath = level.cells * 3;
+  let passable = generateMaze(level.cells, mulberry32(seed));
   const player = { r: 0, c: 0 };
   let food = { r: passable.length - 1, c: passable.length - 1 };
-  for (let n = 1; pathLength(passable, player, food) < minPath && n < 12; n++) {
-    passable = generateMaze(pace.cells, mulberry32(seed + n * 997));
+  for (let n = 1; pathLength(passable, player, food) < minPath && n < 40; n++) {
+    passable = generateMaze(level.cells, mulberry32(seed + n * 997));
     food = { r: passable.length - 1, c: passable.length - 1 };
   }
   const you = pathLength(passable, player, food);
@@ -191,10 +195,10 @@ export function newRace(seed: number, difficulty: DifficultyId, wins = 0): State
     food,
     rotation: 0,
     msRotate: 0,
-    msRival: -pace.waitMs,
+    msRival: -level.waitMs,
     winner: null,
-    rotateEveryMs: pace.rotateEveryMs,
-    aiSpeedMs: pace.aiSpeedMs,
+    rotateEveryMs: level.rotateEveryMs,
+    aiSpeedMs: level.aiSpeedMs,
   };
 }
 
@@ -239,7 +243,14 @@ export function tick(state: State, dtMs: number): State {
 
 export function step(state: State, action: InputAction): State {
   if (state.phase !== 'play' || action === 'pause') return state;
+  const north = screenDelta(action);
+  if (!north) return state;
+  return move(state, 'player', north);
+}
+
+export function stepScreen(state: State, action: InputAction, turns: number): State {
+  if (state.phase !== 'play' || action === 'pause') return state;
   const screen = screenDelta(action);
   if (!screen) return state;
-  return move(state, 'player', mapScreenToWorld(screen, state.rotation));
+  return move(state, 'player', mapScreenToWorld(screen, turns));
 }

@@ -1,5 +1,5 @@
 import { t } from '../core/i18n';
-import { bindThemeRow, themeRowHtml } from '../core/prefs';
+import { bindThemeToggle, themeToggleHtml } from '../core/prefs';
 import { getGameStats } from '../core/storage';
 import { registry } from '../registry';
 import '../core/shell.css';
@@ -29,11 +29,10 @@ export function mountHub(el: HTMLElement): () => void {
   const root = document.createElement('main');
   root.className = 'hub';
   root.innerHTML = `
-    <h1>${t('hub.title')}</h1>
-    <details class="shell__panel">
-      <summary>${t('shell.settings')}</summary>
-      ${themeRowHtml()}
-    </details>
+    <header class="hub__bar">
+      <h1>${t('hub.title')}</h1>
+      ${themeToggleHtml()}
+    </header>
     <ul class="hub__list">
       ${registry
         .map((game) => {
@@ -54,7 +53,7 @@ export function mountHub(el: HTMLElement): () => void {
     </ul>
   `;
   el.appendChild(root);
-  bindThemeRow(root);
+  bindThemeToggle(root);
   root.querySelectorAll('[data-play]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const id = (btn as HTMLElement).dataset.play;

@@ -1,14 +1,19 @@
 ---
-description: Every game must work on desktop and on mobile
+description: Every game must be playable on desktop and on a phone
 alwaysApply: true
 ---
 
-# Desktop and mobile
+# Both platforms
 
-Every game, the hub, and the shell must be playable on a phone and on a desktop. This is the default for new work, not a follow-up.
+A game is not done until it can be finished on a desktop and on a phone. One platform is not optional.
 
-- Size the playfield from its container (`ResizeObserver` or container queries). Do not lock a canvas to a fixed pixel size.
-- Desktop input is the keyboard. Mobile input is touch on the playfield, plus on-screen controls when a tap or swipe is not enough.
-- Hit targets are at least 44px. The playfield sets `touch-action: none` so the browser does not scroll or zoom instead of playing.
-- Fit a 320px-wide phone and a short landscape phone. Use `dvh` and safe-area insets. Wrap text, and move controls beside the board when height is tight. No horizontal scroll.
-- Before finishing a game, check a phone viewport and a desktop viewport, including the hub.
+Desktop means a keyboard and a mouse or trackpad. Do not show an on-screen pad. Phone means touch only: no hover, targets at least 44px, and `touch-action: none` on the playfield so the page does not scroll.
+
+How to play is shared rules, then one control line. Each game has `controlsKey.desktop` and `controlsKey.touch`. The shell shows the line for the current pointer. Those words must match the controls that platform actually has. Do not mention the other device.
+
+Current games:
+
+- Chicken Pursuit. Desktop: arrow keys or WASD, or tap the yard. Phone: the pad, or tap the yard.
+- Space Warp. Desktop: WASD or arrows to fly, click to aim, hold Space or the click to shoot. Phone: drag to fly, hold to shoot.
+
+Before finishing a game, play one move on a desktop window and on a 390px-wide phone, portrait and short landscape. Check the hub on both.

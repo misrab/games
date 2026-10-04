@@ -118,7 +118,15 @@ const game: Game = {
 
     const onAgain = () => goAgain();
 
+    const onVis = () => {
+      if (!document.hidden) return;
+      keys.clear();
+      pointerDown = false;
+      steering = false;
+    };
+
     window.addEventListener('keydown', onKeyDown);
+    document.addEventListener('visibilitychange', onVis);
     window.addEventListener('keyup', onKeyUp);
     canvas.addEventListener('pointerdown', onDown);
     canvas.addEventListener('pointermove', onMove);
@@ -164,6 +172,7 @@ const game: Game = {
       loop.stop();
       observer.disconnect();
       window.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('visibilitychange', onVis);
       window.removeEventListener('keyup', onKeyUp);
       canvas.removeEventListener('pointerdown', onDown);
       canvas.removeEventListener('pointermove', onMove);

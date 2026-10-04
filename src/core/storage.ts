@@ -6,6 +6,7 @@ export interface GameStats {
   best: number;
   plays: number;
   settings: Record<string, string>;
+  seenHow: boolean;
 }
 
 interface Store {
@@ -41,6 +42,7 @@ function normalize(raw: (Partial<GameStats> & { difficulty?: string }) | undefin
     best: raw?.best ?? 0,
     plays: raw?.plays ?? 0,
     settings,
+    seenHow: raw?.seenHow === true,
   };
 }
 
@@ -63,6 +65,14 @@ export function getGameStats(gameId: string): GameStats {
   return normalize(readStore().games[gameId]);
 }
 
+export function markHowSeen(gameId: string): void {
+  const store = readStore();
+  const prev = normalize(store.games[gameId]);
+  if (prev.seenHow) return;
+  store.games[gameId] = { ...prev, seenHow: true };
+  writeStore(store);
+}
+
 export function setGameSettings(gameId: string, settings: Record<string, string>): void {
   const store = readStore();
   const prev = normalize(store.games[gameId]);
@@ -77,6 +87,7 @@ export function saveRun(gameId: string, streak: number): GameStats {
     best: Math.max(prev.best, streak),
     plays: prev.plays + 1,
     settings: prev.settings,
+    seenHow: prev.seenHow,
   };
   store.games[gameId] = next;
   writeStore(store);

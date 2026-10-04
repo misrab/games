@@ -11,6 +11,7 @@ export interface Game {
 export interface SettingOption {
   id: string;
   labelKey: string;
+  shortKey?: string;
 }
 
 export interface GameSetting {
@@ -24,6 +25,7 @@ export interface GameMeta {
   id: string;
   titleKey: string;
   instructionsKey: string;
+  controlsKey: string;
   tags: string[];
   settings?: GameSetting[];
   load: () => Promise<{ default: Game }>;
