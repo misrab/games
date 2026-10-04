@@ -1,0 +1,14 @@
+{
+  "hub.title": "Games",
+  "hub.best": "Best level {score}",
+  "penguin.title": "Penguin Pursuit",
+  "penguin.back": "Back",
+  "penguin.level": "Level {level}",
+  "penguin.you": "You",
+  "penguin.rival": "Rival",
+  "penguin.fish": "Fish",
+  "penguin.hint": "Arrows stay with the screen. The maze turns.",
+  "penguin.win": "You got the fish",
+  "penguin.lose": "Too slow",
+  "penguin.again": "Again"
+}

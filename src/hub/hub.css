@@ -1,0 +1,57 @@
+.hub {
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: max(1.25rem, env(safe-area-inset-top)) 1rem max(2rem, env(safe-area-inset-bottom));
+}
+
+.hub h1 {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+  font-weight: 650;
+}
+
+.hub__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.hub__card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  text-align: left;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--fg);
+  border-radius: 1rem;
+  padding: 0.9rem 1rem;
+  min-height: 4.5rem;
+}
+
+.hub__mark {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: none;
+  border-radius: 0.8rem;
+  background:
+    radial-gradient(circle at 30% 30%, var(--player) 0 18%, transparent 19%),
+    radial-gradient(circle at 72% 34%, var(--rival) 0 16%, transparent 17%),
+    linear-gradient(160deg, var(--floor), var(--wall));
+}
+
+.hub__name {
+  display: block;
+  font-size: 1.15rem;
+  font-weight: 650;
+}
+
+.hub__meta {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
