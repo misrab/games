@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createState, resize, update, type Enemy, type InputState } from './sim';
+import { createState, pointerIntent, resize, update, type Enemy, type InputState } from './sim';
 
 const still: InputState = { ax: 0, ay: 0, aimX: 0, aimY: 0, hasAim: false, steering: false, firing: false };
 
@@ -13,6 +13,39 @@ function field() {
   state.ship.vy = 0;
   return state;
 }
+
+describe('pointerIntent', () => {
+  it('shoots when a press stays still', () => {
+    expect(pointerIntent([{ id: 1, x: 10, y: 20 }], null)).toMatchObject({
+      steering: false,
+      firing: true,
+      hasAim: true,
+      aimX: 10,
+      aimY: 20,
+    });
+  });
+
+  it('flies without shooting while the only finger drags', () => {
+    expect(pointerIntent([{ id: 1, x: 80, y: 90 }], 1)).toMatchObject({
+      steering: true,
+      firing: false,
+      aimX: 80,
+      aimY: 90,
+    });
+  });
+
+  it('lets a second finger shoot during a drag', () => {
+    expect(
+      pointerIntent(
+        [
+          { id: 1, x: 80, y: 90 },
+          { id: 2, x: 12, y: 14 },
+        ],
+        1,
+      ),
+    ).toMatchObject({ steering: true, firing: true, aimX: 80, aimY: 90 });
+  });
+});
 
 describe('void run', () => {
   it('scores a dart when a shot connects', () => {
@@ -95,7 +128,7 @@ describe('void run', () => {
     for (let i = 0; i < 30; i++) update(state, { ...still, ax: 1 }, 1 / 60);
     const speed = Math.hypot(state.ship.vx, state.ship.vy);
     expect(speed).toBeGreaterThan(200);
-    expect(speed).toBeLessThanOrEqual(280);
+    expect(speed).toBeLessThanOrEqual(330);
     update(state, still, 0.4);
     expect(Math.hypot(state.ship.vx, state.ship.vy)).toBe(0);
   });

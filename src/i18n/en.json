@@ -43,7 +43,7 @@
   "void.title": "Space Warp",
   "void.instructions": "Shoot the ships and rocks. Each hit costs hull.",
   "void.controls.desktop": "WASD or the arrow keys fly. Click to aim and hold to shoot, or hold Space. Space starts the next run.",
-  "void.controls.touch": "Drag to fly. Hold the press to shoot. Tap Again for the next run.",
+  "void.controls.touch": "Drag to fly. Hold still to shoot, or add a second finger while dragging. Tap Again for the next run.",
   "void.score": "Score {score}",
   "void.hull": "Hull {hp}",
   "void.over": "Hull breached",

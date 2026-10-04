@@ -3,7 +3,7 @@ import { t } from '../../core/i18n';
 import { createLoop } from '../../core/loop';
 import { saveRun } from '../../core/storage';
 import { createRenderer } from './render';
-import { createState, restart, resize, update, type InputState } from './sim';
+import { createState, pointerIntent, restart, resize, update, type InputState, type LivePointer } from './sim';
 import './style.css';
 
 let stop: (() => void) | null = null;
@@ -12,10 +12,8 @@ const game: Game = {
   mount(el, opts) {
     const state = createState(Date.now() & 0xffff);
     const keys = new Set<string>();
-    let pointer: { x: number; y: number } | null = null;
-    let pointerDown = false;
-    let dragOrigin: { x: number; y: number } | null = null;
-    let steering = false;
+    const pointers = new Map<number, LivePointer & { ox: number; oy: number }>();
+    let stickId: number | null = null;
     let armed = true;
     let saved = false;
 
@@ -53,15 +51,15 @@ const game: Game = {
       if (keys.has('arrowleft') || keys.has('a')) ax -= 1;
       if (keys.has('arrowdown') || keys.has('s')) ay += 1;
       if (keys.has('arrowup') || keys.has('w')) ay -= 1;
-      const firing = pointerDown || keys.has(' ');
+      const touch = pointerIntent([...pointers.values()], stickId);
       return {
         ax,
         ay,
-        aimX: pointer?.x ?? 0,
-        aimY: pointer?.y ?? 0,
-        hasAim: pointer !== null,
-        steering,
-        firing,
+        aimX: touch.aimX,
+        aimY: touch.aimY,
+        hasAim: touch.hasAim,
+        steering: touch.steering,
+        firing: touch.firing || keys.has(' '),
       };
     };
 
@@ -86,34 +84,31 @@ const game: Game = {
 
     const local = (e: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
-      pointer = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
     };
 
     const onDown = (e: PointerEvent) => {
       canvas.setPointerCapture(e.pointerId);
-      pointerDown = true;
-      steering = false;
-      local(e);
-      dragOrigin = pointer ? { ...pointer } : null;
+      const p = local(e);
+      pointers.set(e.pointerId, { id: e.pointerId, x: p.x, y: p.y, ox: p.x, oy: p.y });
     };
 
     const onMove = (e: PointerEvent) => {
-      local(e);
-      if (!pointerDown || !dragOrigin || !pointer) return;
-      const dx = pointer.x - dragOrigin.x;
-      const dy = pointer.y - dragOrigin.y;
-      if (dx * dx + dy * dy > 14 * 14) steering = true;
+      const cur = pointers.get(e.pointerId);
+      if (!cur) return;
+      const p = local(e);
+      cur.x = p.x;
+      cur.y = p.y;
+      if (stickId != null) return;
+      const dx = cur.x - cur.ox;
+      const dy = cur.y - cur.oy;
+      if (dx * dx + dy * dy > 14 * 14) stickId = cur.id;
     };
 
     const onUp = (e: PointerEvent) => {
-      pointerDown = false;
-      steering = false;
-      dragOrigin = null;
+      pointers.delete(e.pointerId);
+      if (stickId === e.pointerId) stickId = null;
       if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
-    };
-
-    const onLeave = () => {
-      if (!pointerDown) pointer = null;
     };
 
     const onAgain = () => goAgain();
@@ -121,8 +116,8 @@ const game: Game = {
     const onVis = () => {
       if (!document.hidden) return;
       keys.clear();
-      pointerDown = false;
-      steering = false;
+      pointers.clear();
+      stickId = null;
     };
 
     window.addEventListener('keydown', onKeyDown);
@@ -132,7 +127,6 @@ const game: Game = {
     canvas.addEventListener('pointermove', onMove);
     canvas.addEventListener('pointerup', onUp);
     canvas.addEventListener('pointercancel', onUp);
-    canvas.addEventListener('pointerleave', onLeave);
     root.querySelector('[data-again]')?.addEventListener('click', onAgain);
     const observer = new ResizeObserver(fit);
     observer.observe(root);
@@ -178,7 +172,6 @@ const game: Game = {
       canvas.removeEventListener('pointermove', onMove);
       canvas.removeEventListener('pointerup', onUp);
       canvas.removeEventListener('pointercancel', onUp);
-      canvas.removeEventListener('pointerleave', onLeave);
       el.replaceChildren();
     };
   },

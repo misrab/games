@@ -10,6 +10,28 @@ export interface InputState {
   firing: boolean;
 }
 
+export interface LivePointer {
+  id: number;
+  x: number;
+  y: number;
+}
+
+export function pointerIntent(
+  points: LivePointer[],
+  stickId: number | null,
+): Pick<InputState, 'steering' | 'firing' | 'aimX' | 'aimY' | 'hasAim'> {
+  const stick = stickId == null ? undefined : points.find((p) => p.id === stickId);
+  const other = points.find((p) => p.id !== stick?.id);
+  const guide = stick ?? other;
+  return {
+    steering: stick != null,
+    firing: points.some((p) => p.id !== stick?.id),
+    hasAim: guide != null,
+    aimX: guide?.x ?? 0,
+    aimY: guide?.y ?? 0,
+  };
+}
+
 export interface Bullet {
   x: number;
   y: number;
@@ -130,7 +152,7 @@ const idle = {
   firing: false,
 };
 
-const MAX_SPEED = 280;
+const MAX_SPEED = 330;
 const STOP_DIST = 22;
 
 export function createState(seed: number): State {
@@ -379,7 +401,7 @@ export function update(state: State, input: InputState = idle, dt: number): void
     const dy = input.aimY - ship.y;
     const dist = Math.hypot(dx, dy);
     if (dist > STOP_DIST) {
-      const ramp = Math.min(1, (dist - STOP_DIST) / 130);
+      const ramp = Math.min(1, (dist - STOP_DIST) / 80);
       tx = (dx / dist) * MAX_SPEED * ramp;
       ty = (dy / dist) * MAX_SPEED * ramp;
     }
@@ -388,7 +410,7 @@ export function update(state: State, input: InputState = idle, dt: number): void
     ty = ay * MAX_SPEED;
   }
 
-  const follow = 1 - Math.exp(-14 * dt);
+  const follow = 1 - Math.exp(-20 * dt);
   ship.vx += (tx - ship.vx) * follow;
   ship.vy += (ty - ship.vy) * follow;
   if (!tx && !ty && Math.hypot(ship.vx, ship.vy) < 10) {
@@ -427,12 +449,12 @@ export function update(state: State, input: InputState = idle, dt: number): void
   let turn = aim - ship.angle;
   if (turn > Math.PI) turn -= Math.PI * 2;
   if (turn < -Math.PI) turn += Math.PI * 2;
-  ship.angle += turn * Math.min(1, dt * 14);
+  ship.angle += turn * Math.min(1, dt * 18);
 
   const ca = Math.cos(ship.angle);
   const sa = Math.sin(ship.angle);
   const speed = Math.hypot(ship.vx, ship.vy);
-  const exhaust = 1 + Math.min(2, speed / 280);
+  const exhaust = 1 + Math.min(2, speed / MAX_SPEED);
   if (speed > 28) {
     for (let i = 0; i < 2; i++) {
       state.sparks.push({
