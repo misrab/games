@@ -1,5 +1,5 @@
 import { t } from '../core/i18n';
-import { bindThemeToggle, themeToggleHtml } from '../core/prefs';
+import { barToolsHtml, bindThemeToggle } from '../core/prefs';
 import { getGameStats } from '../core/storage';
 import { registry } from '../registry';
 import '../core/shell.css';
@@ -31,7 +31,7 @@ export function mountHub(el: HTMLElement): () => void {
   root.innerHTML = `
     <header class="hub__bar">
       <h1>${t('hub.title')}</h1>
-      ${themeToggleHtml()}
+      ${barToolsHtml()}
     </header>
     <ul class="hub__list">
       ${registry

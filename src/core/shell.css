@@ -32,13 +32,19 @@
   white-space: nowrap;
 }
 
-.shell__tools {
+.shell__tools,
+.bar-tools {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 0.15rem;
 }
 
+.icon-link {
+  text-decoration: none;
+}
+
+.icon-link,
 .theme-toggle,
 .shell__pause {
   border: 0;
@@ -54,6 +60,7 @@
   flex: none;
 }
 
+.icon-link svg,
 .theme-toggle svg,
 .shell__pause svg {
   width: 1.35rem;

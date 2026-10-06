@@ -2,7 +2,7 @@ import type { Game, GameMeta } from './game';
 import { t } from './i18n';
 import { clearPauseHolds, isSimulationPaused, setPauseHold } from './loop';
 import { pointerKind, watchPointer } from './pointer';
-import { bindThemeToggle, themeToggleHtml } from './prefs';
+import { bindThemeToggle, githubLinkHtml, themeToggleHtml } from './prefs';
 import { getGameStats, markHowSeen, setGameSettings } from './storage';
 import './shell.css';
 
@@ -58,7 +58,7 @@ export function mountShell(el: HTMLElement, meta: GameMeta, game: Game): () => v
         <button type="button" class="shell__link" data-how-toggle aria-expanded="${firstVisit ? 'true' : 'false'}" aria-label="${t('shell.how')}">${t('shell.how.short')}</button>
         ${(meta.settings?.length ?? 0) > 0 ? `<button type="button" class="shell__link" data-settings-toggle aria-expanded="false"></button>` : ''}
         <button type="button" class="shell__pause" data-pause aria-pressed="false"></button>
-        ${themeToggleHtml()}
+        ${githubLinkHtml()}${themeToggleHtml()}
       </div>
       <div class="shell__note" data-how ${firstVisit ? '' : 'hidden'}>
         <p>${t(meta.instructionsKey)}</p>

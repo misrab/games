@@ -3,6 +3,7 @@
   "hub.best": "Best streak {score}",
   "app.theme.toLight": "Switch to light",
   "app.theme.toDark": "Switch to dark",
+  "app.github": "View source on GitHub",
   "dir.up": "Up",
   "dir.down": "Down",
   "dir.left": "Left",
