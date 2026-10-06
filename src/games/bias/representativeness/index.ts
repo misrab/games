@@ -26,7 +26,7 @@ const game: Game = {
 
     const view = () => {
       if (step === 'intro')
-        return introBlock('representativeness', 'sub.play', 'rep.intro', t('sub.rep.controls.desktop'), t('sub.rep.controls.touch'));
+        return introBlock('representativeness', 'sub.play', 'rep.intro');
       if (step === 'tip') return tipBlock('rep.tip.title', 'rep.tip.body');
       if (step === 'done') {
         const before = Math.round(guesses.slice(0, 3).reduce((s, g, i) => s + biasFromGuess(g, cases[i].truth), 0) / 3);

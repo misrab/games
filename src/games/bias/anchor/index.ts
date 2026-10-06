@@ -38,7 +38,7 @@ const game: Game = {
     const view = (): string => {
       switch (step) {
         case 'intro':
-          return introBlock('anchoring', 'sub.play', 'anchor.intro.body', t('sub.anchor.controls.desktop'), t('sub.anchor.controls.touch'));
+          return introBlock('anchoring', 'sub.play', 'anchor.intro.body');
         case 'tip':
           return tipBlock('anchor.tip.title', 'anchor.tip.body');
         case 'spin': {

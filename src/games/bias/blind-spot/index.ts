@@ -33,7 +33,7 @@ const game: Game = {
 
     const view = () => {
       if (step === 'intro')
-        return introBlock('blind', 'sub.play', 'blind.intro', t('sub.blind.controls.desktop'), t('sub.blind.controls.touch'));
+        return introBlock('blind', 'sub.play', 'blind.intro');
       if (step === 'tip') return tipBlock('blind.tip.title', 'blind.tip.body');
       if (step === 'done') {
         return saveAndDoneHtml(opts.gameId, 'blind', Math.abs(selfRating - measured()), Math.max(0, Math.abs(selfRating - measured()) - 2), `<p class="bk__note">${t('blind.done')}</p>`);

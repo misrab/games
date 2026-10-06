@@ -1,10 +1,17 @@
-import type { Game, GameMeta } from './game';
+import type { Game, GameMeta, ShellBrief } from './game';
 import { t } from './i18n';
 import { clearPauseHolds, isSimulationPaused, setPauseHold } from './loop';
 import { pointerKind, watchPointer } from './pointer';
 import { bindThemeToggle, githubLinkHtml, themeToggleHtml } from './prefs';
 import { getGameStats, markHowSeen, setGameSettings } from './storage';
 import './shell.css';
+
+let applyBrief: ((brief: ShellBrief | null) => void) | null = null;
+
+/** Turn games call this. Null is the menu: no How. A brief is one subgame's instructions. */
+export function setShellBrief(brief: ShellBrief | null): void {
+  applyBrief?.(brief);
+}
 
 const pauseSvg = `<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>`;
 const playSvg = `<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
@@ -34,9 +41,13 @@ function initialSettings(meta: GameMeta): Record<string, string> {
 }
 
 export function mountShell(el: HTMLElement, meta: GameMeta, game: Game): () => void {
+  const live = (meta.pace ?? 'live') === 'live';
   const settings = initialSettings(meta);
-  const firstVisit = !getGameStats(meta.id).seenHow;
-  const controlsText = () => t(`${meta.controlsKey}.${pointerKind()}`);
+  const firstVisit = live && !getGameStats(meta.id).seenHow;
+  let brief: ShellBrief | null = live
+    ? { titleKey: meta.titleKey, instructionsKey: meta.instructionsKey, controlsKey: meta.controlsKey }
+    : null;
+  const controlsText = () => (brief ? t(`${brief.controlsKey}.${pointerKind()}`) : '');
 
   const selected = (short: boolean) => {
     const parts: string[] = [];
@@ -57,11 +68,11 @@ export function mountShell(el: HTMLElement, meta: GameMeta, game: Game): () => v
       <div class="shell__tools">
         <button type="button" class="shell__link" data-how-toggle aria-expanded="${firstVisit ? 'true' : 'false'}" aria-label="${t('shell.how')}">${t('shell.how.short')}</button>
         ${(meta.settings?.length ?? 0) > 0 ? `<button type="button" class="shell__link" data-settings-toggle aria-expanded="false"></button>` : ''}
-        <button type="button" class="shell__pause" data-pause aria-pressed="false"></button>
+        ${live ? `<button type="button" class="shell__pause" data-pause aria-pressed="false"></button>` : ''}
         ${githubLinkHtml()}${themeToggleHtml()}
       </div>
       <div class="shell__note" data-how ${firstVisit ? '' : 'hidden'}>
-        <p>${t(meta.instructionsKey)}</p>
+        <p data-instructions>${brief ? t(brief.instructionsKey) : ''}</p>
         <p data-controls>${controlsText()}</p>
       </div>
       ${(meta.settings?.length ?? 0) > 0 ? `<div class="shell__note shell__note--end" data-settings-panel hidden>
@@ -95,11 +106,31 @@ export function mountShell(el: HTMLElement, meta: GameMeta, game: Game): () => v
   const settingsNote = root.querySelector('[data-settings-panel]') as HTMLElement | null;
   const howBtn = root.querySelector('[data-how-toggle]') as HTMLButtonElement;
   const settingsBtn = root.querySelector('[data-settings-toggle]') as HTMLButtonElement | null;
-  const pauseBtn = root.querySelector('[data-pause]') as HTMLButtonElement;
+  const pauseBtn = root.querySelector('[data-pause]') as HTMLButtonElement | null;
   const mask = root.querySelector('[data-mask]') as HTMLElement;
+  const titleEl = root.querySelector('h1') as HTMLElement;
   let manual = false;
 
+  const paintHow = () => {
+    const show = brief !== null;
+    howBtn.hidden = !show;
+    if (!show) {
+      howNote.hidden = true;
+      howBtn.setAttribute('aria-expanded', 'false');
+    }
+    titleEl.textContent = t(brief?.titleKey ?? meta.titleKey);
+    const instructions = root.querySelector('[data-instructions]');
+    if (instructions && brief) instructions.textContent = t(brief.instructionsKey);
+    const controls = root.querySelector('[data-controls]');
+    if (controls) controls.textContent = controlsText();
+    if (live) syncHow();
+  };
+
   const paintPause = () => {
+    if (!pauseBtn) {
+      mask.hidden = true;
+      return;
+    }
     const showPlay = manual || !howNote.hidden;
     pauseBtn.innerHTML = showPlay ? playSvg : pauseSvg;
     pauseBtn.setAttribute('aria-label', t(showPlay ? 'shell.play' : 'shell.pause'));
@@ -109,6 +140,7 @@ export function mountShell(el: HTMLElement, meta: GameMeta, game: Game): () => v
   };
 
   const syncHow = () => {
+    if (!live) return;
     setPauseHold('how', !howNote.hidden);
     paintPause();
   };
@@ -179,18 +211,19 @@ export function mountShell(el: HTMLElement, meta: GameMeta, game: Game): () => v
     if (target.closest('[data-how-toggle], [data-how], [data-settings-toggle], [data-settings-panel], [data-pause], [data-mask]')) return;
     closeNotes();
   });
-  pauseBtn.addEventListener('click', togglePause);
+  pauseBtn?.addEventListener('click', togglePause);
   mask.addEventListener('click', () => {
-    if (manual || !howNote.hidden) togglePause();
+    if (live && (manual || !howNote.hidden)) togglePause();
   });
 
   const onVis = () => {
+    if (!live) return;
     setPauseHold('hidden', document.hidden);
     paintPause();
   };
   const onKey = (event: KeyboardEvent) => {
     const key = event.key.toLowerCase();
-    if (event.key === 'Escape' || key === 'p') {
+    if (live && (event.key === 'Escape' || key === 'p')) {
       if (event.target instanceof HTMLElement && event.target.closest('input, textarea')) return;
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -206,8 +239,13 @@ export function mountShell(el: HTMLElement, meta: GameMeta, game: Game): () => v
   };
   document.addEventListener('visibilitychange', onVis);
   window.addEventListener('keydown', onKey, true);
-  if (document.hidden) setPauseHold('hidden', true);
-  syncHow();
+  if (live && document.hidden) setPauseHold('hidden', true);
+  applyBrief = (next) => {
+    brief = next;
+    paintHow();
+  };
+  paintHow();
+  if (live) syncHow();
 
   root.querySelectorAll('[data-setting]').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -225,6 +263,7 @@ export function mountShell(el: HTMLElement, meta: GameMeta, game: Game): () => v
   start();
 
   return () => {
+    applyBrief = null;
     stopPointer();
     document.removeEventListener('visibilitychange', onVis);
     window.removeEventListener('keydown', onKey, true);

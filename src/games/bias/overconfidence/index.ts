@@ -30,7 +30,7 @@ const game: Game = {
 
     const view = () => {
       if (step === 'intro')
-        return introBlock('overconfidence', 'sub.play', 'over.intro', t('sub.over.controls.desktop'), t('sub.over.controls.touch'));
+        return introBlock('overconfidence', 'sub.play', 'over.intro');
       if (step === 'tip') return tipBlock('over.tip.title', 'over.tip.body');
       if (step === 'done') {
         const before = overconfidenceRate(hits.slice(0, 3).filter(Boolean).length, 3);

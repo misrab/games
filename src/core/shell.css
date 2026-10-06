@@ -80,6 +80,10 @@
   white-space: nowrap;
 }
 
+.shell__link[hidden] {
+  display: none;
+}
+
 .shell__link[aria-expanded='true'] {
   color: var(--fg);
 }

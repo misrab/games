@@ -30,7 +30,7 @@ const game: Game = {
 
     const view = () => {
       if (step === 'intro')
-        return introBlock('hindsight', 'sub.play', 'hind.intro', t('sub.hind.controls.desktop'), t('sub.hind.controls.touch'));
+        return introBlock('hindsight', 'sub.play', 'hind.intro');
       if (step === 'tip') return tipBlock('hind.tip.title', 'hind.tip.body');
       if (step === 'done') {
         return saveAndDoneHtml(opts.gameId, 'hindsight', meanShift(shifts.slice(0, 3)), meanShift(shifts.slice(3)));

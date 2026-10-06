@@ -1,13 +1,12 @@
 import { t } from '../../core/i18n';
 import { meterPair } from './html';
 
-export function introBlock(biasId: string, playKey: string, bodyKey: string, controlsDesktop: string, controlsTouch: string): string {
+export function introBlock(biasId: string, playKey: string, bodyKey: string): string {
   return `
     <h2 class="bk__q">${t(`bias.${biasId}.name`)}</h2>
     <p class="bk__note">${t(`bias.${biasId}.body`)}</p>
     <a class="bk__paper" href="${t(`bias.${biasId}.url`)}" target="_blank" rel="noopener noreferrer">${t(`bias.${biasId}.link`)}</a>
     <p class="bk__note">${t(bodyKey)}</p>
-    <p class="bk__note">${t('sub.controlsHint', { desktop: controlsDesktop, touch: controlsTouch })}</p>
     <button type="button" class="bk__btn" data-act="start" data-focus>${t(playKey)}</button>`;
 }
 

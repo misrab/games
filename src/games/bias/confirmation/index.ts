@@ -27,7 +27,7 @@ const game: Game = {
 
     const view = () => {
       if (step === 'intro')
-        return introBlock('confirmation', 'sub.play', 'confirm.intro', t('sub.confirm.controls.desktop'), t('sub.confirm.controls.touch'));
+        return introBlock('confirmation', 'sub.play', 'confirm.intro');
       if (step === 'tip') return tipBlock('confirm.tip.title', 'confirm.tip.body');
       if (step === 'done') {
         return saveAndDoneHtml(opts.gameId, 'confirmation', biasRate(attempts.slice(0, 3)), biasRate(attempts.slice(3)));

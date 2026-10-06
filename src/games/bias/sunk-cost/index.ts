@@ -25,7 +25,7 @@ const game: Game = {
 
     const view = () => {
       if (step === 'intro')
-        return introBlock('sunk', 'sub.play', 'sunk.intro', t('sub.sunk.controls.desktop'), t('sub.sunk.controls.touch'));
+        return introBlock('sunk', 'sub.play', 'sunk.intro');
       if (step === 'tip') return tipBlock('sunk.tip.title', 'sunk.tip.body');
       if (step === 'done') {
         return saveAndDoneHtml(opts.gameId, 'sunk', sunkBias(log.slice(0, 3)), sunkBias(log.slice(3)));

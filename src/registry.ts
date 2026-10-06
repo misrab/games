@@ -37,6 +37,7 @@ export const registry: GameMeta[] = [
     instructionsKey: 'cog.instructions',
     controlsKey: 'cog.controls',
     tags: ['brain'],
+    pace: 'turn',
     load: () => import('./games/bias/index'),
   },
 ];

@@ -13,6 +13,9 @@ describe('curriculum', () => {
       expect(messages[`bias.${bias.id}.body`], bias.id).toBeTruthy();
       expect(messages[`bias.${bias.id}.link`], bias.id).toBeTruthy();
       expect(messages[`bias.${bias.id}.url`], bias.id).toMatch(/^https:\/\/doi\.org\/10\./);
+      expect(messages[bias.instructionsKey], bias.id).toBeTruthy();
+      expect(messages[`${bias.controlsKey}.desktop`], bias.id).toBeTruthy();
+      expect(messages[`${bias.controlsKey}.touch`], bias.id).toBeTruthy();
       expect(typeof bias.load).toBe('function');
     }
   });

@@ -26,7 +26,7 @@ const game: Game = {
 
     const view = () => {
       if (step === 'intro')
-        return introBlock('framing', 'sub.play', 'frame.intro', t('sub.frame.controls.desktop'), t('sub.frame.controls.touch'));
+        return introBlock('framing', 'sub.play', 'frame.intro');
       if (step === 'tip') return tipBlock('frame.tip.title', 'frame.tip.body');
       if (step === 'done') {
         return saveAndDoneHtml(opts.gameId, 'framing', flipRate(mismatches, 3), flipRate(Math.max(0, mismatches - 1), 3));

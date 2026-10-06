@@ -34,7 +34,7 @@ const game: Game = {
 
     const view = () => {
       if (step === 'intro')
-        return introBlock('loss', 'sub.play', 'loss.intro', t('sub.loss.controls.desktop'), t('sub.loss.controls.touch'));
+        return introBlock('loss', 'sub.play', 'loss.intro');
       if (step === 'tip') return tipBlock('loss.tip.title', 'loss.tip.body');
       if (step === 'done') {
         const before = acceptRate(accepts.slice(0, 3));

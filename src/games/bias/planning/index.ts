@@ -38,7 +38,7 @@ const game: Game = {
 
     const view = () => {
       if (step === 'intro')
-        return introBlock('planning', 'sub.play', 'plan.intro', t('sub.plan.controls.desktop'), t('sub.plan.controls.touch'));
+        return introBlock('planning', 'sub.play', 'plan.intro');
       if (step === 'tip') return tipBlock('plan.tip.title', 'plan.tip.body');
       if (step === 'done') {
         return saveAndDoneHtml(opts.gameId, 'planning', meanError(errors.slice(0, 3)), meanError(errors.slice(3)));

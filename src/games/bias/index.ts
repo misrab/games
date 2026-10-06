@@ -1,5 +1,6 @@
 import { curriculum, type BiasSpec } from '../../bias/catalog';
 import type { Game, GameOpts } from '../../core/game';
+import { setShellBrief } from '../../core/shell';
 import { t } from '../../core/i18n';
 import { getBiasMeter } from '../../core/storage';
 import './style.css';
@@ -51,7 +52,16 @@ const game: Game = {
   },
 };
 
+function briefFor(bias: BiasSpec) {
+  return {
+    titleKey: `bias.${bias.id}.name`,
+    instructionsKey: bias.instructionsKey,
+    controlsKey: bias.controlsKey,
+  };
+}
+
 function mountDash(el: HTMLElement, gameId: string): void {
+  setShellBrief(null);
   el.innerHTML = `
     <section class="cog cog--dash">
       <div class="cog__dash">
@@ -81,6 +91,7 @@ function mountDash(el: HTMLElement, gameId: string): void {
 }
 
 async function mountSub(el: HTMLElement, opts: GameOpts, spec: BiasSpec): Promise<void> {
+  setShellBrief(briefFor(spec));
   el.innerHTML = `
     <section class="cog">
       <a class="cog__all" href="#/bias">${t('cog.all')}</a>
