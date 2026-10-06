@@ -2,17 +2,24 @@ const STORAGE_KEY = 'games-hub-v1';
 
 export type ThemeName = 'dark' | 'light';
 
+export interface BiasMeter {
+  before: number;
+  after: number;
+  plays: number;
+}
+
 export interface GameStats {
   best: number;
   plays: number;
   settings: Record<string, string>;
   seenHow: boolean;
+  biasMeters?: Record<string, BiasMeter>;
 }
 
 interface Store {
   version: 1;
   theme?: ThemeName;
-  games: Record<string, Partial<GameStats> & { difficulty?: string }>;
+  games: Record<string, Partial<GameStats> & { difficulty?: string; biasMeters?: Record<string, BiasMeter> }>;
 }
 
 function emptyStore(): Store {
@@ -43,7 +50,27 @@ function normalize(raw: (Partial<GameStats> & { difficulty?: string }) | undefin
     plays: raw?.plays ?? 0,
     settings,
     seenHow: raw?.seenHow === true,
+    biasMeters: raw?.biasMeters ?? {},
   };
+}
+
+export function getBiasMeter(gameId: string, biasId: string): BiasMeter | undefined {
+  return getGameStats(gameId).biasMeters?.[biasId];
+}
+
+export function saveBiasMeter(gameId: string, biasId: string, before: number, after: number): BiasMeter {
+  const store = readStore();
+  const prev = normalize(store.games[gameId]);
+  const meters = { ...(prev.biasMeters ?? {}) };
+  const next: BiasMeter = {
+    before,
+    after,
+    plays: (meters[biasId]?.plays ?? 0) + 1,
+  };
+  meters[biasId] = next;
+  store.games[gameId] = { ...prev, biasMeters: meters };
+  writeStore(store);
+  return next;
 }
 
 export function getTheme(): ThemeName {
