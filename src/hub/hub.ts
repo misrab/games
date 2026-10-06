@@ -23,6 +23,12 @@ const marks: Record<string, string> = {
       <path d="M8 30 L24 18 L16 20 L14 26 Z" fill="#e7ecf1"/>
       <circle cx="11" cy="28" r="2.2" fill="var(--accent)"/>
     </svg>`,
+  bias: `
+    <svg viewBox="0 0 44 44">
+      <rect width="44" height="44" fill="#2a1f3d"/>
+      <path d="M22 8c-6 0-10 4.2-10 9.2 0 3.2 1.8 5.4 4.2 6.8.8.5 1.3 1.2 1.3 2.1V28h9v-1.9c0-.9.5-1.6 1.3-2.1 2.4-1.4 4.2-3.6 4.2-6.8C32 12.2 28 8 22 8z" fill="#e7ecf1"/>
+      <path d="M18 31h8M19.5 34h5" stroke="var(--accent)" stroke-width="2"/>
+    </svg>`,
 };
 
 export function mountHub(el: HTMLElement): () => void {

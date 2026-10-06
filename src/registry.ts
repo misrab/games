@@ -31,6 +31,14 @@ export const registry: GameMeta[] = [
     tags: ['action', 'space'],
     load: () => import('./games/void-run/index'),
   },
+  {
+    id: 'bias',
+    titleKey: 'cog.title',
+    instructionsKey: 'cog.instructions',
+    controlsKey: 'cog.controls',
+    tags: ['brain'],
+    load: () => import('./games/bias/index'),
+  },
 ];
 
 export function findGameMeta(id: string): GameMeta | undefined {

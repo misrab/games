@@ -29,7 +29,7 @@ async function route(): Promise<void> {
     return;
   }
 
-  const id = path.replace(/^\//, '');
+  const id = path.replace(/^\//, '').split('/')[0];
   const meta = findGameMeta(id);
   if (!meta) {
     app.textContent = t('shell.missing');

@@ -1,0 +1,84 @@
+.cog {
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  touch-action: pan-y;
+}
+
+.cog__card {
+  width: min(100%, 30rem);
+  margin: 0 auto;
+  padding: 0.75rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.cog__all {
+  display: flex;
+  align-items: center;
+  width: min(100%, 30rem);
+  margin: 0 auto;
+  min-height: 2.75rem;
+  color: var(--accent);
+  text-underline-offset: 0.18em;
+}
+
+.cog__slot {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.cog__note {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.cog__list {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.cog__list li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border);
+}
+
+.cog__name {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.cog__list p,
+.cog__card > p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.cog__paper,
+.cog__open {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--accent);
+  text-underline-offset: 0.18em;
+}
+
+.cog__open {
+  color: var(--fg);
+  font-weight: 650;
+  text-decoration: underline;
+}
