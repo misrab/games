@@ -49,7 +49,7 @@ const game: Game = {
       }
       return `
         <p class="bk__round">${t('sub.round', { n: i + 1, total: 6 })}</p>
-        <h2 class="bk__q">${t(`anchor.q.${item().id}`)}</h2>
+        <h2 class="bk__q">${t(`over.q.${item().id}`)}</h2>
         <p class="bk__note">${t('over.prompt')}</p>
         ${sliderHtml({ label: t('over.low'), min: item().min, max: item().max, unsetKey: t('anchor.unset'), lockKey: t('sub.next') })}`;
     };

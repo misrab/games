@@ -43,7 +43,7 @@ const game: Game = {
       return `
         <p class="bk__round">${roundLabel(round)}</p>
         <h2 class="bk__q">${t('confirm.prompt')}</h2>
-        <p class="bk__note">${t('confirm.seed')}</p>
+        <p class="bk__note">${t(`confirm.seed.${rule.id}`)}</p>
         <div class="bk__row">
           <input class="bk__btn" type="number" data-a value="${triple[0]}" aria-label="a" />
           <input class="bk__btn" type="number" data-b value="${triple[1]}" aria-label="b" />
@@ -77,8 +77,8 @@ const game: Game = {
           round += 1;
           if (round === 3) aided = true;
           step = stepAfterRound(round);
-          rule = rules[round % rules.length];
-          triple = [1 + round, 4 + round, 7 + round];
+          rule = rules[round] ?? rules[0];
+          triple = [2, 4, 6];
           paint();
           break;
         case 'tip':

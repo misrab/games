@@ -19,7 +19,15 @@ const game: Game = {
     let taps = 0;
     let t0 = 0;
     let timer: number | null = null;
-    const target = 8;
+    const tasks = [
+      { id: 'drum', target: 6 },
+      { id: 'sprint', target: 12 },
+      { id: 'march', target: 9 },
+      { id: 'clap', target: 15 },
+      { id: 'stamp', target: 7 },
+      { id: 'knock', target: 11 },
+    ];
+    const task = () => tasks[round];
 
     const { card, unmount } = mountCard(el);
 
@@ -41,10 +49,11 @@ const game: Game = {
           <button type="button" class="bk__btn" data-act="next" data-focus>${t('sub.next')}</button>`;
       if (step === 'task')
         return `
-          <p class="bk__q">${t('plan.task', { n: taps, target })}</p>
+          <p class="bk__q">${t(`plan.task.${task().id}`, { n: taps, target: task().target })}</p>
           <button type="button" class="bk__btn" data-act="tap" data-focus>${t('plan.tap')}</button>`;
       return `
         <p class="bk__round">${roundLabel(round)}</p>
+        <h2 class="bk__q">${t(`plan.name.${task().id}`, { target: task().target })}</h2>
         <input type="number" class="bk__btn" data-est value="10" min="3" max="60" aria-label="${t('plan.estimate')}" />
         <button type="button" class="bk__btn" data-act="go" data-focus>${t('sub.continue')}</button>`;
     };
@@ -73,7 +82,7 @@ const game: Game = {
           break;
         case 'tap':
           taps += 1;
-          if (taps >= target) {
+          if (taps >= task().target) {
             actual = Math.max(1, Math.round((performance.now() - t0) / 1000));
             errors.push(planningError(estimate, actual));
             step = 'reveal';

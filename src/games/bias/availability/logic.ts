@@ -6,10 +6,12 @@ export interface Pair {
 }
 
 export const pairs: Pair[] = [
-  { id: 'plane', a: 1, b: 730, vivid: 'a' },
-  { id: 'car', a: 730, b: 1, vivid: null },
-  { id: 'flood', a: 89, b: 1200, vivid: 'a' },
-  { id: 'asthma', a: 1200, b: 89, vivid: null },
+  { id: 'shark', a: 5, b: 30, vivid: 'a' },
+  { id: 'lightning', a: 20, b: 400, vivid: 'a' },
+  { id: 'tornado', a: 70, b: 700, vivid: 'a' },
+  { id: 'plane', a: 1, b: 730, vivid: null },
+  { id: 'lottery', a: 1, b: 400, vivid: null },
+  { id: 'homicide', a: 6, b: 14, vivid: null },
 ];
 
 export function errorRate(picks: { correct: boolean }[]): number {

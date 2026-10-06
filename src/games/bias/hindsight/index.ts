@@ -17,7 +17,8 @@ const game: Game = {
     let recorded = 50;
     let lastRecall = 50;
     let shifts: number[] = [];
-    const outcomes = [true, false, true, false, true, false];
+    const prompts = ['coin', 'startup', 'flight', 'exam', 'rain', 'match'];
+    const outcomes = [true, false, true, false, false, true];
 
     const { card, unmount } = mountCard(el);
 
@@ -35,7 +36,7 @@ const game: Game = {
         return saveAndDoneHtml(opts.gameId, 'hindsight', meanShift(shifts.slice(0, 3)), meanShift(shifts.slice(3)));
       }
       if (step === 'outcome')
-        return `<p class="bk__verdict">${t('hind.outcome', { yes: outcomes[round] ? t('hind.yes') : t('hind.no') })}</p><button type="button" class="bk__btn" data-act="outcome" data-focus>${t('sub.continue')}</button>`;
+        return `<h2 class="bk__q">${t(`hind.q.${prompts[round]}`)}</h2><p class="bk__verdict">${t('hind.outcome', { yes: outcomes[round] ? t('hind.yes') : t('hind.no') })}</p><button type="button" class="bk__btn" data-act="outcome" data-focus>${t('sub.continue')}</button>`;
       if (step === 'reveal') {
         const shift = shifts[shifts.length - 1] ?? 0;
         return `
@@ -45,11 +46,13 @@ const game: Game = {
       if (step === 'recall')
         return `
           <p class="bk__round">${roundLabel(round)}</p>
-          <h2 class="bk__q">${t('hind.recall')}</h2>
+          <h2 class="bk__q">${t(`hind.q.${prompts[round]}`)}</h2>
+          <p class="bk__note">${t('hind.recall')}</p>
           ${sliderHtml({ label: t('hind.conf'), min: 0, max: 100, unsetKey: t('anchor.unset'), lockKey: t('sub.next') })}`;
       return `
         <p class="bk__round">${roundLabel(round)}</p>
-        <h2 class="bk__q">${t('hind.predict')}</h2>
+        <h2 class="bk__q">${t(`hind.q.${prompts[round]}`)}</h2>
+        <p class="bk__note">${t('hind.predict')}</p>
         ${sliderHtml({ label: t('hind.conf'), min: 0, max: 100, unsetKey: t('anchor.unset'), lockKey: t('sub.next') })}`;
     };
 

@@ -36,6 +36,7 @@ const game: Game = {
           <button type="button" class="bk__btn" data-act="next" data-focus>${t('sub.next')}</button>`;
       return `
         <p class="bk__round">${roundLabel(round)}</p>
+        <h2 class="bk__q">${t(`sunk.mine.${['north', 'reef', 'ridge', 'basin', 'spur', 'cleft'][round]}`)}</h2>
         <p class="bk__note">${t('sunk.state', { dug: mine.dug, left: Math.max(0, mine.gold - mine.dug * mine.costPerDig) })}</p>
         <div class="bk__row">
           <button type="button" class="bk__btn" data-act="dig" data-focus>${t('sunk.dig')}</button>
@@ -67,7 +68,7 @@ const game: Game = {
           break;
         case 'next':
           round += 1;
-          mine = { gold: 70 + round * 5, dug: 4, costPerDig: 10 };
+          mine = { gold: 40 + round * 15, dug: 1 + (round % 3), costPerDig: 8 + round };
           step = stepAfterRound(round);
           paint();
           break;

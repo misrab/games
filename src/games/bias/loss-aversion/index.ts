@@ -9,13 +9,13 @@ type Step = 'intro' | 'play' | 'reveal' | 'tip' | 'done';
 
 let stop: (() => void) | null = null;
 
-const bets: Bet[] = [
-  { win: 15, lose: 10 },
-  { win: 25, lose: 10 },
-  { win: 40, lose: 10 },
-  { win: 20, lose: 10 },
-  { win: 30, lose: 10 },
-  { win: 50, lose: 10 },
+const bets: (Bet & { id: string })[] = [
+  { id: 'coin', win: 15, lose: 10 },
+  { id: 'bonus', win: 200, lose: 100 },
+  { id: 'stock', win: 40, lose: 20 },
+  { id: 'fare', win: 30, lose: 25 },
+  { id: 'deal', win: 80, lose: 50 },
+  { id: 'raffle', win: 12, lose: 10 },
 ];
 
 const game: Game = {
@@ -49,7 +49,7 @@ const game: Game = {
       const b = bet();
       return `
         <p class="bk__round">${roundLabel(round)}</p>
-        <h2 class="bk__q">${t('loss.offer', { win: b.win, lose: b.lose })}</h2>
+        <h2 class="bk__q">${t(`loss.q.${b.id}`, { win: b.win, lose: b.lose })}</h2>
         <div class="bk__row">
           <button type="button" class="bk__btn" data-pick="yes" data-focus>${t('loss.yes')}</button>
           <button type="button" class="bk__btn" data-pick="no">${t('loss.no')}</button>

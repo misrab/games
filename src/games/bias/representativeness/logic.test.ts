@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { taxiBlueRate } from './logic';
+import { cases } from './logic';
 
 describe('representativeness', () => {
-  it('blue cab rate is below 50%', () => {
-    expect(taxiBlueRate()).toBeCloseTo(0.41, 1);
+  it('uses a different case each round', () => {
+    expect(new Set(cases.map((c) => c.id)).size).toBe(cases.length);
+    expect(cases).toHaveLength(6);
+    expect(cases[0].truth).toBe(41);
   });
 });

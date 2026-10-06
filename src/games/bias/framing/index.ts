@@ -4,7 +4,7 @@ import { mountCard, paintFocus, roundLabel, saveAndDoneHtml, stepAfterRound } fr
 import { introBlock, tipBlock } from '../../../bias/kit/shell';
 import type { Game, GameOpts } from '../../../core/game';
 import { t } from '../../../core/i18n';
-import { flipRate } from './logic';
+import { flipRate, scenes } from './logic';
 
 type Step = 'intro' | 'play' | 'reveal' | 'tip' | 'done';
 
@@ -14,7 +14,7 @@ const game: Game = {
   mount(el, opts) {
     let step: Step = 'intro';
     let round = 0;
-    let gainChoice = false;
+    const gainPicks: boolean[] = [];
     let mismatches = 0;
 
     const { card, unmount } = mountCard(el);
@@ -31,16 +31,19 @@ const game: Game = {
       if (step === 'done') {
         return saveAndDoneHtml(opts.gameId, 'framing', flipRate(mismatches, 3), flipRate(Math.max(0, mismatches - 1), 3));
       }
-      if (step === 'reveal')
+      if (step === 'reveal') {
+        const scene = scenes[round % 3];
         return `
           <p class="bk__verdict">${t('frame.reveal')}</p>
-          ${peopleHtml(200, 600)}
+          ${peopleHtml(Math.min(24, Math.round(scene.live / 25)), Math.min(24, Math.round(scene.dead / 25)))}
           <button type="button" class="bk__btn" data-act="next" data-focus>${t('sub.next')}</button>`;
-      const gain = round % 2 === 0;
+      }
+      const scene = scenes[round % 3];
+      const gain = round < 3;
       return `
         <p class="bk__round">${roundLabel(round)}</p>
-        <h2 class="bk__q">${t(gain ? 'frame.gain' : 'frame.loss')}</h2>
-        ${peopleHtml(gain ? 200 : 600, gain ? 600 : 200)}
+        <h2 class="bk__q">${t(`frame.${scene.id}.${gain ? 'gain' : 'loss'}`)}</h2>
+        ${peopleHtml(Math.min(24, Math.round(scene.live / 25)), Math.min(24, Math.round(scene.dead / 25)))}
         <div class="bk__row">
           <button type="button" class="bk__btn" data-pick="a" data-focus>${t('frame.a')}</button>
           <button type="button" class="bk__btn" data-pick="b">${t('frame.b')}</button>
@@ -52,10 +55,8 @@ const game: Game = {
       if (!btn) return;
       if (btn.dataset.pick) {
         const risky = btn.dataset.pick === 'a';
-        if (round % 2 === 0) gainChoice = risky;
-        else {
-          if (gainChoice !== risky) mismatches += 1;
-        }
+        if (round < 3) gainPicks[round] = risky;
+        else if (gainPicks[round - 3] !== risky) mismatches += 1;
         step = 'reveal';
         paint();
         return;

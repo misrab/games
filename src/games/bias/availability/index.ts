@@ -45,8 +45,8 @@ const game: Game = {
         <p class="bk__round">${roundLabel(round)}</p>
         <h2 class="bk__q">${t(`avail.q.${pair().id}`)}</h2>
         <div class="bk__row">
-          <button type="button" class="bk__btn" data-pick="a" data-focus>${t('avail.a')}</button>
-          <button type="button" class="bk__btn" data-pick="b">${t('avail.b')}</button>
+          <button type="button" class="bk__btn" data-pick="a" data-focus>${t(`avail.opt.${pair().id}.a`)}</button>
+          <button type="button" class="bk__btn" data-pick="b">${t(`avail.opt.${pair().id}.b`)}</button>
         </div>`;
     };
 
